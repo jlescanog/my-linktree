@@ -45,8 +45,8 @@ if (navigator.share) {
   document.getElementById("shareBtn").addEventListener("click", function () {
     navigator
       .share({
-        title: "Anuswar R Rao",
-        url: "https://anuswarr.netlify.app/",
+        title: "Jhair Lescano",
+        url: "https://www.linkedin.com/in/jhair-lescano/",
       })
       .catch((err) => {
         console.error("Error sharing: ", err);
@@ -59,7 +59,7 @@ if (navigator.share) {
 }
 
 function shareOn(platform) {
-  const shareUrl = "https://anuswarr.netlify.app/";
+  const shareUrl = "https://www.linkedin.com/in/jhair-lescano/";
   let shareURL = "";
   // Set the URL input value for copying
   document.getElementById("shareUrl").value = shareUrl;
