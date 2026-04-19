@@ -7,10 +7,10 @@ const terminalContainer = document.getElementById('terminal-container');
 // Profile Info
 const profile = {
     name: "Jhair Lescano",
-    role: "DBA & Analista de Datos Senior | Desarrollador Backend en Microservicios",
-    experience: "SQL Server, Oracle y Linux",
+    role: "Data Engineer | Cloud | Python | Databricks",
+    experience: "SQL Server, Oracle, IA, Machine Learning",
     phone: "+51 933243356",
-    email: "jlescanog@hometech.com.es"
+    email: "jlescanoguevara@gmail.com"
 };
 
 // Available links
@@ -36,7 +36,7 @@ const profileUrl = "https://www.linkedin.com/in/jhair-lescano/";
 
 const commands = {
     help: {
-        desc: 'Muestra los comandos disponibles.',
+        desc: 'Lista los comandos disponibles.',
         action: () => {
             let helpText = "Comandos disponibles:\n";
             for (let cmd in commands) {
@@ -46,7 +46,7 @@ const commands = {
         }
     },
     about: {
-        desc: 'Muestra información sobre mí.',
+        desc: 'Lista información sobre mí.',
         action: () => {
             printHTML(`<img src="assets/images/Perfil2.png" alt="Profile" class="term-profile-img">`);
             printLine(`Nombre: <span class="cmd-echo">${profile.name}</span>`);
@@ -55,7 +55,7 @@ const commands = {
         }
     },
     links: {
-        desc: 'Muestra mis redes sociales y enlaces.',
+        desc: 'Lista mis redes sociales y enlaces.',
         action: () => {
             printLine("Mis enlaces profesionales:");
             let linksHtml = "";
@@ -66,7 +66,7 @@ const commands = {
         }
     },
     contact: {
-        desc: 'Muestra mi información de contacto.',
+        desc: 'Lista mi información de contacto.',
         action: () => {
             printLine("Información de contacto:");
             printHTML(`  <a href="tel:${profile.phone.replace(/\\s/g, '')}" class="term-link"><i class="fas fa-phone"></i> ${profile.phone}</a>`);
@@ -74,7 +74,7 @@ const commands = {
         }
     },
     share: {
-        desc: 'Muestra opciones para compartir mi perfil.',
+        desc: 'Lista opciones para compartir mi perfil.',
         action: () => {
             printLine("Compartir perfil vía:");
             let shareHtml = "";
@@ -144,7 +144,7 @@ const bootSequence = [
     "Inicializando sistema...",
     "Cargando perfil de Jhair Lescano...",
     "Estableciendo conexión segura... OK",
-    "Resolviendo dependencias (SQL Server, Oracle, Linux)... OK",
+    "Resolviendo dependencias (SQL, Python, Bash, Perl)... OK",
     "Preparando módulos de Microservicios... OK",
     "¡Bienvenido a la terminal interactiva!",
     "Escribe 'help' para ver los comandos disponibles.\n"
