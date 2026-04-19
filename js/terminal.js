@@ -7,10 +7,10 @@ const terminalContainer = document.getElementById('terminal-container');
 // Profile Info
 const profile = {
     name: "Jhair Lescano",
-    role: "Data Engineer | Cloud | Python | Databricks",
-    experience: "SQL Server, Oracle, IA, Machine Learning",
+    role: "DBA & Analista de Datos Senior | Desarrollador Backend en Microservicios",
+    experience: "SQL Server, Oracle y Linux",
     phone: "+51 933243356",
-    email: "jlescanoguevara@gmail.com"
+    email: "jlescanog@hometech.com.es"
 };
 
 // Available links
@@ -36,7 +36,7 @@ const profileUrl = "https://www.linkedin.com/in/jhair-lescano/";
 
 const commands = {
     help: {
-        desc: 'Lista los comandos disponibles.',
+        desc: 'Muestra los comandos disponibles.',
         action: () => {
             let helpText = "Comandos disponibles:\n";
             for (let cmd in commands) {
@@ -46,16 +46,16 @@ const commands = {
         }
     },
     about: {
-        desc: 'Lista información sobre mí.',
+        desc: 'Muestra información sobre mí.',
         action: () => {
             printHTML(`<img src="assets/images/Perfil2.png" alt="Profile" class="term-profile-img">`);
-            printLine(`Nombre: <span class="cmd-echo">${profile.name}</span>`);
-            printLine(`Rol:    ${profile.role}`);
-            printLine(`Exp:    ${profile.experience}\n`);
+            printLine(`<span class="hl-pink">Nombre:</span> <span class="cmd-echo">${profile.name}</span>`);
+            printLine(`<span class="hl-cyan">Rol:</span>    ${profile.role}`);
+            printLine(`<span class="hl-purple">Exp:</span>    ${profile.experience}\n`);
         }
     },
     links: {
-        desc: 'Lista mis redes sociales y enlaces.',
+        desc: 'Muestra mis redes sociales y enlaces.',
         action: () => {
             printLine("Mis enlaces profesionales:");
             let linksHtml = "";
@@ -66,7 +66,7 @@ const commands = {
         }
     },
     contact: {
-        desc: 'Lista mi información de contacto.',
+        desc: 'Muestra mi información de contacto.',
         action: () => {
             printLine("Información de contacto:");
             printHTML(`  <a href="tel:${profile.phone.replace(/\\s/g, '')}" class="term-link"><i class="fas fa-phone"></i> ${profile.phone}</a>`);
@@ -74,7 +74,7 @@ const commands = {
         }
     },
     share: {
-        desc: 'Lista opciones para compartir mi perfil.',
+        desc: 'Muestra opciones para compartir mi perfil.',
         action: () => {
             printLine("Compartir perfil vía:");
             let shareHtml = "";
@@ -144,16 +144,16 @@ const bootSequence = [
     "Inicializando sistema...",
     "Cargando perfil de Jhair Lescano...",
     "Estableciendo conexión segura... OK",
-    "Resolviendo dependencias (SQL, Python, Bash, Perl)... OK",
+    "Resolviendo dependencias (SQL Server, Oracle, Linux)... OK",
     "Preparando módulos de Microservicios... OK",
     "¡Bienvenido a la terminal interactiva!",
-    "Escribe 'help' para ver los comandos disponibles.\n"
+    "Escribe '<span class=\"hl-yellow\">help</span>' para ver los comandos disponibles.\n"
 ];
 
 async function runBootSequence() {
     isTyping = true;
     for (let i = 0; i < bootSequence.length; i++) {
-        await typeText(bootSequence[i], 20); // Faster typing
+        await typeHTML(bootSequence[i], 20); // Faster typing
     }
     commands.about.action();
     inputLine.style.display = "flex";
@@ -161,18 +161,39 @@ async function runBootSequence() {
     isTyping = false;
 }
 
-function typeText(text, speed = 30) {
+// Function to type out HTML preserving tags
+function typeHTML(htmlStr, speed = 30) {
     return new Promise(resolve => {
         let i = 0;
+        let isTag = false;
+        let currentText = "";
         const div = document.createElement("div");
         div.className = "line";
         outputDiv.appendChild(div);
 
         const interval = setInterval(() => {
-            div.innerHTML += text.charAt(i);
+            const char = htmlStr.charAt(i);
+            currentText += char;
+            div.innerHTML = currentText;
+
+            if (char === '<') isTag = true;
+            if (char === '>') isTag = false;
+
             scrollToBottom();
             i++;
-            if (i >= text.length) {
+
+            // If we are inside an HTML tag, don't wait for interval, jump to next char
+            if (isTag) {
+                while(i < htmlStr.length && isTag) {
+                    const nextChar = htmlStr.charAt(i);
+                    currentText += nextChar;
+                    div.innerHTML = currentText;
+                    if (nextChar === '>') isTag = false;
+                    i++;
+                }
+            }
+
+            if (i >= htmlStr.length) {
                 clearInterval(interval);
                 resolve();
             }

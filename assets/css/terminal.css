@@ -1,10 +1,16 @@
 :root {
-  --bg-color: #0a0914;
-  --text-color: #d1d5f8;
-  --prompt-color: #ff79c6;
-  --link-color: #e5c07b;
-  --error-color: #ff5555;
-  --cmd-color: #8be9fd;
+  --bg-color: #110b1a;
+  --text-color: #f1f1f1;
+  --prompt-color: #7b4cdb;
+  --link-color: #16d0f6;
+  --error-color: #e5429d;
+  --cmd-color: #fdb700;
+
+  --highlight-pink: #e5429d;
+  --highlight-cyan: #16d0f6;
+  --highlight-yellow: #fdb700;
+  --highlight-purple: #7b4cdb;
+
   --font-family: 'Fira Code', monospace;
 }
 
@@ -130,6 +136,11 @@ a.term-link:hover {
 .cmd-echo {
   color: var(--cmd-color);
 }
+
+.hl-pink { color: var(--highlight-pink); }
+.hl-cyan { color: var(--highlight-cyan); }
+.hl-yellow { color: var(--highlight-yellow); }
+.hl-purple { color: var(--highlight-purple); }
 
 .ascii-art {
   font-size: 10px; /* Smaller font to fit ascii art properly on mobile */
