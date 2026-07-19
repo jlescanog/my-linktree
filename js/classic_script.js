@@ -1,3 +1,32 @@
+/* =============== RENDER FROM SHARED DATA (js/data.js) =============== */
+document.addEventListener("DOMContentLoaded", () => {
+  // Contact buttons
+  const phoneBtn = document.getElementById("phone-btn");
+  phoneBtn.href = `tel:${PROFILE.phone.replace(/\s/g, "")}`;
+  document.getElementById("phone-text").textContent = PROFILE.phone;
+  document.getElementById("mail-btn").href = `mailto:${PROFILE.email}`;
+
+  // Share URL input
+  document.getElementById("shareUrl").value = PROFILE.url;
+
+  // Social links list
+  const list = document.getElementById("links-list");
+  LINKS.forEach((link, i) => {
+    const li = document.createElement("li");
+    li.className = "mb-3 animate__animated animate__bounceIn";
+    li.style.animationDelay = `${0.2 + i * 0.2}s`;
+    li.innerHTML = `
+      <a href="${link.url}" target="_blank" class="btn btn-dark d-flex align-items-center p-3 rounded-3 text-start">
+        <i class="${link.icon} me-3"></i>
+        <div class="text-start">
+          <h5 class="mb-0">${link.name}</h5>
+          <small>${link.desc}</small>
+        </div>
+      </a>`;
+    list.appendChild(li);
+  });
+});
+
 /* =============== LIGHT MODE =============== */
 const toggleButton = document.getElementById("theme-toggle");
 const themeIcon = document.getElementById("theme-icon");
@@ -45,8 +74,8 @@ if (navigator.share) {
   document.getElementById("shareBtn").addEventListener("click", function () {
     navigator
       .share({
-        title: "Jhair Lescano",
-        url: "https://www.linkedin.com/in/jhair-lescano/",
+        title: PROFILE.name,
+        url: PROFILE.url,
       })
       .catch((err) => {
         console.error("Error sharing: ", err);
@@ -59,31 +88,12 @@ if (navigator.share) {
 }
 
 function shareOn(platform) {
-  const shareUrl = "https://www.linkedin.com/in/jhair-lescano/";
-  let shareURL = "";
-  // Set the URL input value for copying
-  document.getElementById("shareUrl").value = shareUrl;
-
-  switch (platform) {
-    case "facebook":
-      shareURL = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
-      break;
-    case "twitter":
-      shareURL = `https://twitter.com/intent/tweet?url=${shareUrl}`;
-      break;
-    case "linkedin":
-      shareURL = `https://www.linkedin.com/shareArticle?url=${shareUrl}`;
-      break;
-    case "whatsapp":
-      shareURL = `https://wa.me/?text=${shareUrl}`;
-      break;
-    case "email":
-      shareURL = `mailto:?subject=Check this out&body=${shareUrl}`;
-      break;
-    default:
-      break;
-  }
-  window.open(shareURL, "_blank");
+  // Reutiliza las plantillas de URL de js/data.js (SHARE_OPTIONS)
+  const option = SHARE_OPTIONS.find(
+    (o) => o.name.toLowerCase() === platform.toLowerCase()
+  );
+  if (!option) return;
+  window.open(option.getUrl(PROFILE.url), "_blank");
 }
 
 // Initialize Clipboard.js

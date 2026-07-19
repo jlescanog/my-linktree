@@ -1,57 +1,57 @@
+// Los datos del perfil (PROFILE, LINKS, SHARE_OPTIONS) vienen de js/data.js
+
 const outputDiv = document.getElementById('output');
 const inputTextSpan = document.getElementById('input-text');
 const hiddenInput = document.getElementById('hidden-input');
 const inputLine = document.getElementById('input-line');
 const terminalContainer = document.getElementById('terminal-container');
 
-// Profile Info
-const profile = {
-    name: "Jhair Lescano",
-    role: "Data Engineer | Cloud | Databricks | IA",
-    experience: "SQL Server,SQL Oracle, Python, Machine Learning",
-    phone: "+51 933243356",
-    email: "jlescanoguevara@gmail.com"
+let isTyping = false;
+let commandHistory = [];
+let historyIndex = -1;
+
+// ============================================================
+// ASCII art banner (estilo figlet "ANSI Shadow")
+// ============================================================
+const asciiBanner =
+`     ██╗██╗  ██╗ █████╗ ██╗██████╗
+     ██║██║  ██║██╔══██╗██║██╔══██╗
+     ██║███████║███████║██║██████╔╝
+██   ██║██╔══██║██╔══██║██║██╔══██╗
+╚█████╔╝██║  ██║██║  ██║██║██║  ██║
+ ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝`;
+
+// "Archivos" ficticios para ls / cat — cada uno mapea a un comando
+const FILES = {
+    'sobre-mi.txt': 'about',
+    'enlaces.txt': 'links',
+    'contacto.txt': 'contact'
 };
 
-// Available links
-const links = [
-    { name: 'My Website', url: 'https://jhairlescano.vercel.app/', icon: 'fas fa-globe' },
-    { name: 'GitHub', url: 'https://github.com/jlescanog', icon: 'fab fa-github' },
-    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/jhair-lescano/', icon: 'fab fa-linkedin' },
-    { name: 'Instagram', url: 'https://www.instagram.com/jhair.lescano', icon: 'fab fa-instagram' },
-    { name: 'Facebook', url: 'https://www.facebook.com/JhairLescanoG', icon: 'fab fa-facebook' },
-    { name: 'Twitter', url: 'https://x.com/jlescanog', icon: 'fab fa-twitter' }
-];
-
-// Share links
-const shareOptions = [
-    { name: 'Facebook', getUrl: (url) => `https://www.facebook.com/sharer/sharer.php?u=${url}`, icon: 'fab fa-facebook' },
-    { name: 'Twitter', getUrl: (url) => `https://twitter.com/intent/tweet?url=${url}`, icon: 'fab fa-twitter' },
-    { name: 'LinkedIn', getUrl: (url) => `https://www.linkedin.com/shareArticle?url=${url}`, icon: 'fab fa-linkedin' },
-    { name: 'WhatsApp', getUrl: (url) => `https://wa.me/?text=${url}`, icon: 'fab fa-whatsapp' },
-    { name: 'Email', getUrl: (url) => `mailto:?subject=Check this out&body=${url}`, icon: 'fas fa-envelope' }
-];
-
-const profileUrl = "https://www.linkedin.com/in/jhair-lescano/";
-
+// ============================================================
+// Comandos
+// Los que llevan hidden: true no aparecen en help ni autocompletan
+// ============================================================
 const commands = {
     help: {
         desc: 'Lista los comandos disponibles.',
         action: () => {
             let helpText = "Comandos disponibles:\n";
             for (let cmd in commands) {
+                if (commands[cmd].hidden) continue;
                 helpText += `  <span class="cmd-echo">${cmd.padEnd(10)}</span> - ${commands[cmd].desc}\n`;
             }
+            helpText += `\nTip: usa <span class="hl-yellow">Tab</span> para autocompletar y <span class="hl-yellow">↑/↓</span> para el historial.`;
             printLine(helpText);
         }
     },
     about: {
         desc: 'Lista información sobre mí.',
         action: () => {
-            printHTML(`<img src="assets/images/Perfil2.png" alt="Profile" class="term-profile-img">`);
-            printLine(`<span class="hl-pink">Nombre:</span> <span class="cmd-echo">${profile.name}</span>`);
-            printLine(`<span class="hl-cyan">Rol:</span>    ${profile.role}`);
-            printLine(`<span class="hl-purple">Exp:</span>    ${profile.experience}\n`);
+            printHTML(`<img src="assets/images/Perfil2.jpg" alt="Profile" class="term-profile-img">`);
+            printLine(`<span class="hl-pink">Nombre:</span> <span class="cmd-echo">${PROFILE.name}</span>`);
+            printLine(`<span class="hl-cyan">Rol:</span>    ${PROFILE.role}`);
+            printLine(`<span class="hl-purple">Exp:</span>    ${PROFILE.experience}\n`);
         }
     },
     links: {
@@ -59,7 +59,7 @@ const commands = {
         action: () => {
             printLine("Mis enlaces profesionales:");
             let linksHtml = "";
-            links.forEach(link => {
+            LINKS.forEach(link => {
                 linksHtml += `  <a href="${link.url}" target="_blank" class="term-link"><i class="${link.icon}"></i> ${link.name}</a>\n`;
             });
             printHTML(linksHtml);
@@ -69,8 +69,8 @@ const commands = {
         desc: 'Lista mi información de contacto.',
         action: () => {
             printLine("Información de contacto:");
-            printHTML(`  <a href="tel:${profile.phone.replace(/\\s/g, '')}" class="term-link"><i class="fas fa-phone"></i> ${profile.phone}</a>`);
-            printHTML(`  <a href="mailto:${profile.email}" class="term-link"><i class="fas fa-envelope"></i> ${profile.email}</a>\n`);
+            printHTML(`  <a href="tel:${PROFILE.phone.replace(/\s/g, '')}" class="term-link"><i class="fas fa-phone"></i> ${PROFILE.phone}</a>`);
+            printHTML(`  <a href="mailto:${PROFILE.email}" class="term-link"><i class="fas fa-envelope"></i> ${PROFILE.email}</a>\n`);
         }
     },
     share: {
@@ -78,10 +78,72 @@ const commands = {
         action: () => {
             printLine("Compartir perfil vía:");
             let shareHtml = "";
-            shareOptions.forEach(opt => {
-                shareHtml += `  <a href="${opt.getUrl(profileUrl)}" target="_blank" class="term-link"><i class="${opt.icon}"></i> ${opt.name}</a>\n`;
+            SHARE_OPTIONS.forEach(opt => {
+                shareHtml += `  <a href="${opt.getUrl(PROFILE.url)}" target="_blank" class="term-link"><i class="${opt.icon}"></i> ${opt.name}</a>\n`;
             });
             printHTML(shareHtml);
+        }
+    },
+    neofetch: {
+        desc: 'Muestra info del sistema (y del perfil).',
+        action: () => {
+            printHTML(`<div class="ascii-art">${asciiBanner}</div>`);
+            printLine(`<span class="cmd-echo">guest</span>@<span class="cmd-echo">jhair-lescano</span>`);
+            printLine(`-------------------`);
+            printLine(`<span class="hl-purple">OS</span>:      JhairOS 1.0 LTS x86_64`);
+            printLine(`<span class="hl-purple">Host</span>:    ${PROFILE.name}`);
+            printLine(`<span class="hl-purple">Rol</span>:     ${PROFILE.role}`);
+            printLine(`<span class="hl-purple">Stack</span>:   ${PROFILE.experience}`);
+            printLine(`<span class="hl-purple">Shell</span>:   bash 5.2.15`);
+            printLine(`<span class="hl-purple">Uptime</span>:  disponible 24/7 ☕`);
+            printLine(`<span class="hl-purple">Email</span>:   ${PROFILE.email}`);
+            printHTML(`<span class="hl-pink">███</span><span class="hl-cyan">███</span><span class="hl-yellow">███</span><span class="hl-purple">███</span>\n`);
+        }
+    },
+    ls: {
+        desc: 'Lista los archivos del directorio.',
+        action: () => {
+            printLine(Object.keys(FILES).map(f => `<span class="hl-cyan">${f}</span>`).join('  '));
+            printLine(`Usa '<span class="hl-yellow">cat &lt;archivo&gt;</span>' para leerlos.\n`);
+        }
+    },
+    cat: {
+        desc: 'Muestra un archivo (ej: cat sobre-mi.txt).',
+        action: (args) => {
+            const file = (args[0] || '').toLowerCase();
+            if (FILES[file]) {
+                commands[FILES[file]].action();
+            } else {
+                printLine(`cat: ${escapeHTML(file || '')}: No existe el archivo o directorio`, "error");
+            }
+        }
+    },
+    whoami: {
+        desc: 'Muestra el usuario actual.',
+        action: () => printLine("guest")
+    },
+    date: {
+        desc: 'Muestra la fecha y hora actual.',
+        action: () => printLine(new Date().toLocaleString('es-PE', { dateStyle: 'full', timeStyle: 'medium' }))
+    },
+    echo: {
+        desc: 'Repite el texto que escribas.',
+        action: (args) => printLine(escapeHTML(args.join(' ')))
+    },
+    history: {
+        desc: 'Muestra el historial de comandos.',
+        action: () => {
+            commandHistory.forEach((c, i) => {
+                printLine(`  ${String(i + 1).padStart(3)}  ${escapeHTML(c)}`);
+            });
+        }
+    },
+    crt: {
+        desc: 'Activa/desactiva el efecto de monitor CRT.',
+        action: () => {
+            const on = document.body.classList.toggle('crt');
+            localStorage.setItem('crt', on ? 'on' : 'off');
+            printLine(`Efecto CRT: <span class="${on ? 'hl-cyan' : 'error'}">${on ? 'ACTIVADO' : 'DESACTIVADO'}</span>\n`);
         }
     },
     gui: {
@@ -98,14 +160,39 @@ const commands = {
         action: () => {
             outputDiv.innerHTML = "";
         }
+    },
+    exit: {
+        desc: 'Cierra la sesión (o lo intenta).',
+        action: () => {
+            printLine("logout");
+            printLine(`No hay escapatoria 😉 Prueba '<span class="hl-yellow">gui</span>' si prefieres la versión gráfica.\n`);
+        }
+    },
+    // ===== Easter eggs (ocultos en help) =====
+    sudo: {
+        hidden: true,
+        action: (args) => {
+            const joined = args.join(' ');
+            if (joined.includes('rm') && joined.includes('-rf')) {
+                printLine("Eliminando sistema de archivos...", "error");
+                printLine("Borrando enlaces... perfil... recuerdos...", "error");
+                printLine(`...es broma 😄 Buen intento. Este incidente será reportado.\n`);
+            } else {
+                printLine("guest no está en el archivo sudoers. Este incidente será reportado.", "error");
+            }
+        }
+    },
+    rm: {
+        hidden: true,
+        action: () => printLine("rm: permiso denegado: los enlaces de Jhair son de solo lectura 🔒", "error")
     }
 };
 
-let isTyping = false;
-let commandHistory = [];
-let historyIndex = -1;
+// ============================================================
+// Helpers de salida
+// ============================================================
 
-// Helper to escape HTML characters from user input to prevent UI breaks
+// Escapa HTML del input del usuario para prevenir inyección
 function escapeHTML(str) {
     return str.replace(/[&<>'"]/g,
         tag => ({
@@ -135,11 +222,12 @@ function printHTML(html) {
 }
 
 function scrollToBottom() {
-    window.scrollTo(0, document.body.scrollHeight);
     terminalContainer.scrollTop = terminalContainer.scrollHeight;
 }
 
-// Boot sequence animation
+// ============================================================
+// Secuencia de arranque
+// ============================================================
 const bootSequence = [
     "Inicializando sistema...",
     "Cargando perfil de Jhair Lescano...",
@@ -152,8 +240,9 @@ const bootSequence = [
 
 async function runBootSequence() {
     isTyping = true;
+    printHTML(`<div class="ascii-art">${asciiBanner}</div>`);
     for (let i = 0; i < bootSequence.length; i++) {
-        await typeHTML(bootSequence[i], 20); // Faster typing
+        await typeHTML(bootSequence[i], 20);
     }
     commands.about.action();
     inputLine.style.display = "flex";
@@ -161,39 +250,67 @@ async function runBootSequence() {
     isTyping = false;
 }
 
-// Function to type out HTML preserving tags
+// ============================================================
+// Efecto de tipeo carácter por carácter.
+// Tokeniza el HTML una sola vez (etiquetas vs texto) y agrega
+// nodos de texto incrementalmente (textNode.data += char),
+// evitando re-parsear todo el innerHTML en cada carácter.
+// ============================================================
+const VOID_TAGS = new Set(['img', 'br', 'hr', 'input']);
+
 function typeHTML(htmlStr, speed = 30) {
     return new Promise(resolve => {
-        let i = 0;
-        let isTag = false;
-        let currentText = "";
         const div = document.createElement("div");
         div.className = "line";
         outputDiv.appendChild(div);
 
+        // Divide en tokens: etiquetas HTML completas o fragmentos de texto
+        const tokens = htmlStr.split(/(<[^>]+>)/g).filter(t => t !== "");
+        const stack = [div]; // pila de elementos abiertos
+        let ti = 0;          // índice de token
+        let ci = 0;          // índice de carácter dentro del token de texto
+        let textNode = null;
+
         const interval = setInterval(() => {
-            const char = htmlStr.charAt(i);
-            currentText += char;
-            div.innerHTML = currentText;
-
-            if (char === '<') isTag = true;
-            if (char === '>') isTag = false;
-
-            scrollToBottom();
-            i++;
-
-            // If we are inside an HTML tag, don't wait for interval, jump to next char
-            if (isTag) {
-                while(i < htmlStr.length && isTag) {
-                    const nextChar = htmlStr.charAt(i);
-                    currentText += nextChar;
-                    div.innerHTML = currentText;
-                    if (nextChar === '>') isTag = false;
-                    i++;
+            // Las etiquetas se insertan al instante (no se "tipean")
+            while (ti < tokens.length && tokens[ti].startsWith("<")) {
+                const tag = tokens[ti];
+                if (tag.startsWith("</")) {
+                    if (stack.length > 1) stack.pop();
+                } else {
+                    const tpl = document.createElement("template");
+                    tpl.innerHTML = tag;
+                    const el = tpl.content.firstChild;
+                    if (el) {
+                        stack[stack.length - 1].appendChild(el);
+                        const name = el.tagName ? el.tagName.toLowerCase() : "";
+                        if (!VOID_TAGS.has(name) && !tag.endsWith("/>")) stack.push(el);
+                    }
                 }
+                ti++;
+                textNode = null;
             }
 
-            if (i >= htmlStr.length) {
+            if (ti >= tokens.length) {
+                clearInterval(interval);
+                resolve();
+                return;
+            }
+
+            // Tipea un carácter del token de texto actual
+            if (!textNode) {
+                textNode = document.createTextNode("");
+                stack[stack.length - 1].appendChild(textNode);
+            }
+            textNode.data += tokens[ti].charAt(ci++);
+            if (ci >= tokens[ti].length) {
+                ti++;
+                ci = 0;
+                textNode = null;
+            }
+            scrollToBottom();
+
+            if (ti >= tokens.length) {
                 clearInterval(interval);
                 resolve();
             }
@@ -201,7 +318,9 @@ function typeHTML(htmlStr, speed = 30) {
     });
 }
 
-// Input handling
+// ============================================================
+// Manejo de input
+// ============================================================
 terminalContainer.addEventListener("click", () => {
     hiddenInput.focus();
 });
@@ -214,9 +333,34 @@ document.addEventListener("keydown", (e) => {
     hiddenInput.focus();
 });
 
-hiddenInput.addEventListener("input", (e) => {
+hiddenInput.addEventListener("input", () => {
     inputTextSpan.textContent = hiddenInput.value;
 });
+
+// Autocompletado con Tab (comandos y archivos de cat)
+function autocomplete() {
+    const val = hiddenInput.value;
+    let candidates = [];
+    let prefix = "";
+    let base = "";
+
+    if (val.toLowerCase().startsWith("cat ")) {
+        base = "cat ";
+        prefix = val.slice(4).toLowerCase();
+        candidates = Object.keys(FILES).filter(f => f.startsWith(prefix));
+    } else if (!val.includes(" ")) {
+        prefix = val.toLowerCase();
+        candidates = Object.keys(commands).filter(c => c.startsWith(prefix) && !commands[c].hidden);
+    }
+
+    if (candidates.length === 1) {
+        hiddenInput.value = base + candidates[0];
+        inputTextSpan.textContent = hiddenInput.value;
+    } else if (candidates.length > 1 && prefix) {
+        printLine(`<span class="prompt">guest@jhair-lescano:~$</span> <span class="cmd-echo">${escapeHTML(val)}</span>`);
+        printLine(candidates.map(c => `<span class="hl-cyan">${c}</span>`).join('  '));
+    }
+}
 
 hiddenInput.addEventListener("keydown", (e) => {
     if (isTyping) {
@@ -237,6 +381,9 @@ hiddenInput.addEventListener("keydown", (e) => {
         }
         hiddenInput.value = "";
         inputTextSpan.textContent = "";
+    } else if (e.key === "Tab") {
+        e.preventDefault();
+        autocomplete();
     } else if (e.key === "ArrowUp") {
         e.preventDefault();
         if (historyIndex > 0) {
@@ -259,18 +406,26 @@ hiddenInput.addEventListener("keydown", (e) => {
 });
 
 function processCommand(rawCmd) {
-    const args = rawCmd.split(' ');
-    const cmd = args[0].toLowerCase();
+    const args = rawCmd.split(' ').filter(a => a !== '');
+    const cmd = (args[0] || '').toLowerCase();
 
     if (commands[cmd]) {
         commands[cmd].action(args.slice(1));
     } else {
         const safeCmd = escapeHTML(cmd);
-        printLine(`Comando no encontrado: ${safeCmd}. Escribe 'help' para ver los comandos disponibles.`, "error");
+        printLine(`bash: ${safeCmd}: command not found`, "error");
+        printLine(`Escribe '<span class="hl-yellow">help</span>' para ver los comandos disponibles.`);
     }
 }
 
-// Start sequence on load
+// ============================================================
+// Inicio
+// ============================================================
+// Efecto CRT activado por defecto (se puede apagar con el comando 'crt')
+if (localStorage.getItem('crt') !== 'off') {
+    document.body.classList.add('crt');
+}
+
 window.onload = () => {
     hiddenInput.focus();
     runBootSequence();

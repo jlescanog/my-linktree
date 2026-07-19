@@ -20,17 +20,32 @@
     <link rel="stylesheet" href="assets/css/terminal.css" />
   </head>
   <body>
-    <div id="terminal-container" class="terminal" tabindex="0">
-      <div id="output"></div>
-      <div id="input-line" class="input-line" style="display: none;">
-        <span class="prompt">guest@jhair-lescano:~$</span>
-        <span id="input-text"></span><span class="cursor">_</span>
+    <!-- Terminal window frame (macOS/Linux style) -->
+    <div class="terminal-window">
+      <div class="titlebar">
+        <span class="tb-dot tb-red"></span>
+        <span class="tb-dot tb-yellow"></span>
+        <span class="tb-dot tb-green"></span>
+        <span class="tb-title">guest@jhair-lescano: ~</span>
+      </div>
+      <div id="terminal-container" class="terminal" tabindex="0">
+        <div id="output"></div>
+        <div id="input-line" class="input-line" style="display: none;">
+          <span class="prompt">guest@jhair-lescano:~$</span>
+          <span id="input-text"></span><span class="cursor">_</span>
+        </div>
       </div>
     </div>
 
     <!-- Hidden input for mobile keyboards -->
     <input type="text" id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
 
-    <script src="js/terminal.js"></script>
+    <!-- Fixed switch to classic GUI version (for users unfamiliar with terminals) -->
+    <a href="classic.html" id="gui-switch" class="gui-switch" title="Ver la versión clásica">
+      <i class="fas fa-desktop"></i> Ver versión GUI
+    </a>
+
+    <script src="js/data.js" defer></script>
+    <script src="js/terminal.js" defer></script>
   </body>
 </html>
